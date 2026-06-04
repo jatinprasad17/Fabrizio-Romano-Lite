@@ -1,8 +1,8 @@
 import os
 from typing import TypedDict
 from langgraph.graph import StateGraph,END
-from search import search_transfer_news
-from analyser import analyse_news,filter_articles
+from agent.search import search_transfer_news
+from agent.analyser import analyse_news,filter_articles
 from dotenv import load_dotenv
 
 load_dotenv()
