@@ -1,10 +1,27 @@
 import streamlit as st
 import sys
 import os
-
+from dotenv import load_dotenv
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-from database.supabase_client import add_subscriber, remove_subscriber, subscriber_exists
+import requests
+
+load_dotenv()
+
+
+API_URL = os.getenv("API_URL")
+
+if "sub_msg" not in st.session_state:
+    st.session_state.sub_msg = None
+if "sub_type" not in st.session_state:
+    st.session_state.sub_type = None
+if "unsub_msg" not in st.session_state:
+    st.session_state.unsub_msg = None
+if "unsub_type" not in st.session_state:
+    st.session_state.unsub_type = None
+
+
+
 
 st.set_page_config(
     page_title="Fabrizio Romano Lite",
@@ -386,12 +403,24 @@ col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     if st.button("Here We Go →"):
         if not email or "@" not in email:
-            st.markdown('<div class="frl-alert frl-error">⚠ &nbsp;Please enter a valid email address.</div>', unsafe_allow_html=True)
-        elif subscriber_exists(email):
-            st.markdown('<div class="frl-alert frl-error">⚠ &nbsp;This email is already subscribed.</div>', unsafe_allow_html=True)
+            st.session_state.sub_msg = "Please enter a valid email address."
+            st.session_state.sub_type = "error"
         else:
-            add_subscriber(email, team)
-            st.markdown(f'<div class="frl-alert frl-success">✓ &nbsp;You\'re in! First <strong>{team}</strong> briefing arrives tomorrow at 9 AM.</div>', unsafe_allow_html=True)
+            res = requests.post(f"{API_URL}/subscribe", json={"email": email, "team": team})
+            if res.status_code == 200:
+                st.session_state.sub_msg = f"You're in! First {team} briefing arrives tomorrow at 9 AM."
+                st.session_state.sub_type = "success"
+            elif res.status_code == 409:
+                st.session_state.sub_msg = "This email is already subscribed."
+                st.session_state.sub_type = "error"
+            else:
+                st.session_state.sub_msg = "Something went wrong. Try again."
+                st.session_state.sub_type = "error"
+
+    if st.session_state.sub_msg:
+        css_class = "frl-success" if st.session_state.sub_type == "success" else "frl-error"
+        icon = "✓" if st.session_state.sub_type == "success" else "⚠"
+        st.markdown(f'<div class="frl-alert {css_class}">{icon} &nbsp;{st.session_state.sub_msg}</div>', unsafe_allow_html=True)
 
 
 # ── UNSUBSCRIBE SECTION ──
@@ -407,13 +436,24 @@ u_col1, u_col2, u_col3 = st.columns([1, 2, 1])
 with u_col2:
     if st.button("Remove Me"):
         if not unsub_email or "@" not in unsub_email:
-            st.markdown('<div class="frl-alert frl-error">⚠ &nbsp;Please enter a valid email address.</div>', unsafe_allow_html=True)
-        elif not subscriber_exists(unsub_email):
-            st.markdown('<div class="frl-alert frl-error">⚠ &nbsp;Email not found.</div>', unsafe_allow_html=True)
+            st.session_state.unsub_msg = "Please enter a valid email address."
+            st.session_state.unsub_type = "error"
         else:
-            remove_subscriber(unsub_email)
-            st.markdown('<div class="frl-alert frl-success">✓ &nbsp;Unsubscribed successfully.</div>', unsafe_allow_html=True)
+            res = requests.delete(f"{API_URL}/unsubscribe/{unsub_email}")
+            if res.status_code == 200:
+                st.session_state.unsub_msg = "Unsubscribed successfully."
+                st.session_state.unsub_type = "success"
+            elif res.status_code == 404:
+                st.session_state.unsub_msg = "Email not found."
+                st.session_state.unsub_type = "error"
+            else:
+                st.session_state.unsub_msg = "Something went wrong. Try again."
+                st.session_state.unsub_type = "error"
 
+    if st.session_state.unsub_msg:
+        css_class = "frl-success" if st.session_state.unsub_type == "success" else "frl-error"
+        icon = "✓" if st.session_state.unsub_type == "success" else "⚠"
+        st.markdown(f'<div class="frl-alert {css_class}">{icon} &nbsp;{st.session_state.unsub_msg}</div>', unsafe_allow_html=True)
 
 # ── FOOTER ──
 st.markdown("""
