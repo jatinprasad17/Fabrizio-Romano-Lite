@@ -24,7 +24,7 @@ if "unsub_type" not in st.session_state:
 
 
 st.set_page_config(
-    page_title="Fabrizio Romano Lite",
+    page_title="farzi romano",
     page_icon="⚽",
     layout="wide",
     initial_sidebar_state="collapsed"
