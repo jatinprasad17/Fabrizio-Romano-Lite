@@ -16,34 +16,43 @@ def analyse_news(team: str, articles: list[dict]) -> dict:
         articles_text += f"{i+1}. {article['title']}\n{article['url']}\n{article.get('content', '')[:3000]}\n\n"
 
         prompt = f"""
-    You are a football transfer news analyst. Be extremely strict.
+    You are a football transfer news analyst.
 
     Team: {team}
     Articles:
     {articles_text}
 
     STRICT RULES:
-    - ONLY include transfers where {team} is DIRECTLY involved as buyer, seller, or the player currently plays for {team}
-    - If {team} is only mentioned in passing in another club's transfer story, IGNORE IT completely
-    - Do not include transfers from other clubs unless {team} is directly linked
-    - For From → To: if destination unknown write "Exit/Free Agent" not "Unknown"
-    - If source club unknown write "Incoming" not "Unknown"  
-    - Always mention fee if available
+    - ONLY include transfers where {team} is DIRECTLY involved
+    - Pick TOP 10 most reliable/important transfers only
+    - Sort by reliability score descending
+    - Skip minor youth/loan moves unless highly reliable
 
-    Give me:
-    1. ALL TRANSFERS & RUMOURS (every single one where {team} is directly involved)
-    - For each: Player name, From → To, Type (Rumour/Confirmed/Contract), Details, Reliability Score (1-10)
-    - Reliability guide: Romano/Ornstein source = high, random blog = low, multiple sources = higher
-    2. OVERALL RELIABILITY SCORE (1-10)
-    3. SUMMARY (3-4 lines, only about {team})
+    CRITICAL: Return ONLY raw JSON. No explanation. No preamble. No markdown. No backticks. Just the JSON object starting with {{ and ending with }}.
+    {{
+        "transfers": [
+            {{
+                "player": "Player Name",
+                "from": "Club Name",
+                "to": "Club Name",
+                "type": "Confirmed/Rumour/Contract",
+                "detail": "One line detail",
+                "score": 8
+            }}
+        ],
+        "summary": "2-3 line overall summary",
+        "overall_score": 7
+    }}
     """
 
     response = llm.invoke([HumanMessage(content=prompt)])
 
-    return {
-        "team": team,
-        "analysis": response.content
-    }
+    try:
+        import json
+        clean = response.content.strip().replace("```json", "").replace("```", "")
+        return {"team": team, "analysis": json.loads(clean)}
+    except:
+        return {"team": team, "analysis": response.content}
 
 def filter_articles(team: str, articles: list[dict]) -> list[dict]:
     articles_text = ""
