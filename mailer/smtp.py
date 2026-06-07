@@ -203,8 +203,8 @@ def send_transfer_email(to_email: str, team: str, analysis):
     msg["To"] = to_email
     msg.attach(MIMEText(html, "html"))
 
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+    with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        server.starttls()
         server.login(gmail, password)
         server.sendmail(gmail, to_email, msg.as_string())
-
     print(f"Email sent to {to_email}!")
