@@ -1,11 +1,11 @@
-import resend
-import os
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from datetime import datetime
+import os
 from dotenv import load_dotenv
 
 load_dotenv()
-
-resend.api_key = os.getenv("RESEND_API_KEY")
 
 def score_color(score):
     if score >= 8: return "#4ade80"
@@ -23,6 +23,8 @@ def type_color(t):
     return "#a78bfa"
 
 def send_transfer_email(to_email: str, team: str, analysis):
+    login = os.getenv("BREVO_LOGIN")
+    password = os.getenv("BREVO_PASSWORD")
     date_str = datetime.now().strftime("%B %d, %Y")
 
     if isinstance(analysis, dict) and "transfers" in analysis:
@@ -133,11 +135,15 @@ def send_transfer_email(to_email: str, team: str, analysis):
     else:
         html = f"<html><body><pre>{analysis}</pre></body></html>"
 
-    resend.Emails.send({
-        "from": "Farzi Romano <onboarding@resend.dev>",
-        "to": to_email,
-        "subject": f"⚽ {team} Transfer Briefing — {date_str}",
-        "html": html
-    })
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = f"⚽ {team} Transfer Briefing — {date_str}"
+    msg["From"] = f"Farzi Romano <jatinprasad7781@gmail.com>"
+    msg["To"] = to_email
+    msg.attach(MIMEText(html, "html"))
+
+    with smtplib.SMTP("smtp-relay.brevo.com", 587) as server:
+        server.starttls()
+        server.login(login, password)
+        server.sendmail(login, to_email, msg.as_string())
 
     print(f"Email sent to {to_email}!")
