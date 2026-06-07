@@ -23,8 +23,8 @@ def type_color(t):
     return "#a78bfa"
 
 def send_transfer_email(to_email: str, team: str, analysis):
-    login = os.getenv("BREVO_LOGIN")
-    password = os.getenv("BREVO_PASSWORD")
+    gmail = os.getenv("GMAIL_ADDRESS")
+    password = os.getenv("GMAIL_APP_PASSWORD")
     date_str = datetime.now().strftime("%B %d, %Y")
 
     if isinstance(analysis, dict) and "transfers" in analysis:
@@ -83,41 +83,101 @@ def send_transfer_email(to_email: str, team: str, analysis):
 <html>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background:#030308;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#030308;padding:40px 20px;">
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+  <!-- HEADER -->
   <tr>
-    <td style="background:linear-gradient(135deg,#1a0533 0%,#0d1526 100%);border:1px solid #2d1b69;border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
-        <div style="display:inline-block;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.25);border-radius:999px;padding:4px 14px;font-size:10px;letter-spacing:3px;color:#a78bfa;text-transform:uppercase;margin-bottom:16px;">⚽ Transfer Intelligence</div>
+    <td style="
+        background:linear-gradient(135deg,#1a0533 0%,#0d1526 100%);
+        border:1px solid #2d1b69;
+        border-radius:16px 16px 0 0;
+        padding:36px 40px;
+        text-align:center;
+    ">
+        <div style="
+            display:inline-block;
+            background:rgba(167,139,250,0.1);
+            border:1px solid rgba(167,139,250,0.25);
+            border-radius:999px;
+            padding:4px 14px;
+            font-size:10px;
+            letter-spacing:3px;
+            color:#a78bfa;
+            text-transform:uppercase;
+            margin-bottom:16px;
+        ">⚽ Transfer Intelligence</div>
         <div style="font-size:28px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">{team}</div>
         <div style="font-size:13px;color:#6b7280;margin-top:6px;">{date_str} · Top 10 Briefing</div>
     </td>
   </tr>
+
+  <!-- OVERALL SCORE BAR -->
   <tr>
-    <td style="background:#0d0d1a;border-left:1px solid #2d1b69;border-right:1px solid #2d1b69;padding:16px 40px;">
+    <td style="
+        background:#0d0d1a;
+        border-left:1px solid #2d1b69;
+        border-right:1px solid #2d1b69;
+        padding:16px 40px;
+    ">
         <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
             <td style="color:#6b7280;font-size:11px;letter-spacing:2px;text-transform:uppercase;">Overall Reliability</td>
             <td align="right">
-                <span style="background:{score_color(overall)}22;color:{score_color(overall)};border:1px solid {score_color(overall)}44;padding:3px 12px;border-radius:999px;font-size:12px;font-weight:700;">{overall}/10</span>
+                <span style="
+                    background:{score_color(overall)}22;
+                    color:{score_color(overall)};
+                    border:1px solid {score_color(overall)}44;
+                    padding:3px 12px;
+                    border-radius:999px;
+                    font-size:12px;
+                    font-weight:700;
+                ">{overall}/10</span>
             </td>
         </tr>
         </table>
     </td>
   </tr>
+
+  <!-- TRANSFERS -->
   <tr>
-    <td style="background:#080810;border-left:1px solid #2d1b69;border-right:1px solid #2d1b69;padding:0 40px;">
-        <table width="100%" cellpadding="0" cellspacing="0">{rows}</table>
+    <td style="
+        background:#080810;
+        border-left:1px solid #2d1b69;
+        border-right:1px solid #2d1b69;
+        padding:0 40px;
+    ">
+        <table width="100%" cellpadding="0" cellspacing="0">
+            {rows}
+        </table>
     </td>
   </tr>
+
+  <!-- SUMMARY -->
   <tr>
-    <td style="background:#0d0d1a;border:1px solid #2d1b69;border-top:none;padding:24px 40px;">
+    <td style="
+        background:#0d0d1a;
+        border:1px solid #2d1b69;
+        border-top:none;
+        padding:24px 40px;
+    ">
         <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#6b7280;margin-bottom:10px;">Summary</div>
         <div style="font-size:13px;color:#9ca3af;line-height:1.8;">{summary}</div>
     </td>
   </tr>
+
+  <!-- FOOTER -->
   <tr>
-    <td style="background:#030308;border:1px solid #1a1a2e;border-top:none;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
+    <td style="
+        background:#030308;
+        border:1px solid #1a1a2e;
+        border-top:none;
+        border-radius:0 0 16px 16px;
+        padding:24px 40px;
+        text-align:center;
+    ">
         <div style="font-size:11px;color:#374151;letter-spacing:1px;">
             Powered by <span style="color:#a78bfa;">LangGraph</span> · 
             <span style="color:#a78bfa;">Groq</span> · 
@@ -126,9 +186,11 @@ def send_transfer_email(to_email: str, team: str, analysis):
         <div style="font-size:10px;color:#1f2937;margin-top:8px;">© 2026 Farzi Romano · Unsubscribe anytime</div>
     </td>
   </tr>
+
 </table>
 </td></tr>
 </table>
+
 </body>
 </html>
 """
@@ -137,13 +199,12 @@ def send_transfer_email(to_email: str, team: str, analysis):
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = f"⚽ {team} Transfer Briefing — {date_str}"
-    msg["From"] = f"Farzi Romano <jatinprasad7781@gmail.com>"
+    msg["From"] = gmail
     msg["To"] = to_email
     msg.attach(MIMEText(html, "html"))
 
-    with smtplib.SMTP("smtp-relay.brevo.com", 587) as server:
-        server.starttls()
-        server.login(login, password)
-        server.sendmail(login, to_email, msg.as_string())
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        server.login(gmail, password)
+        server.sendmail(gmail, to_email, msg.as_string())
 
     print(f"Email sent to {to_email}!")

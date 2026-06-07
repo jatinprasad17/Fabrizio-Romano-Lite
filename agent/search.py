@@ -9,15 +9,13 @@ client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
 
 def search_transfer_news(team: str) -> list[dict]:
     today = datetime.now().strftime("%B %d %Y")
-    current_month = datetime.now().strftime("%B %Y")
     
     results = []
     
     queries = [
-        f"Fabrizio Romano {team} transfer {current_month}",
-        f"David Ornstein {team} transfer {current_month}",
-        f"{team} transfer news today {today}",
-        f"{team} new signing rumour {current_month}"
+        f"Fabrizio Romano {team} transfer {today}",
+        f"David Ornstein {team} transfer {today}",
+        f"{team} transfer news June 2026"
     ]
     
     for query in queries:
