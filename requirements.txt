@@ -9,3 +9,4 @@ supabase
 python-dotenv
 requests
 resend
+langchain-google-genai
